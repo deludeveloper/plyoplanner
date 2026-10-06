@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { load, save, emptyState } from "./lib/storage.js";
 import { START_LEVELS, hopRatio } from "./lib/plan.js";
-import { SetupForm, SaveScreen, HurtingScreen } from "./components/Onboarding.jsx";
+import { SetupForm, SaveScreen } from "./components/Onboarding.jsx";
 import Today from "./components/Today.jsx";
 import Routine from "./components/Routine.jsx";
 import Progress from "./components/Progress.jsx";
@@ -39,9 +39,6 @@ export default function App() {
 
   // ----- First visit -----
   if (!state.profile) {
-    if (step === "hurt") {
-      return <div className="app"><HurtingScreen onEdit={() => setStep("setup")} /></div>;
-    }
     if (step === "save" && draft) {
       return (
         <div className="app">
@@ -59,20 +56,7 @@ export default function App() {
     }
     return (
       <div className="app">
-        <SetupForm initial={draft} onDone={(p) => { setDraft(p); setStep(p.hurting ? "hurt" : "save"); }} />
-      </div>
-    );
-  }
-
-  if (state.profile.hurting) {
-    return (
-      <div className="app">
-        {view === "edit" ? (
-          <SetupForm editing initial={state.profile} onCancel={() => setView(null)}
-            onDone={(p) => { update((s) => ({ ...s, profile: p })); setView(null); }} />
-        ) : (
-          <HurtingScreen onEdit={() => setView("edit")} />
-        )}
+        <SetupForm initial={draft} onDone={(p) => { setDraft({ ...p, hurting: false }); setStep("save"); }} />
       </div>
     );
   }
@@ -91,7 +75,7 @@ export default function App() {
     screen = (
       <SetupForm editing initial={state.profile} onCancel={() => setView("settings")}
         onDone={(p) => {
-          update((s) => ({ ...s, profile: { ...s.profile, ...p } }));
+          update((s) => ({ ...s, profile: { ...s.profile, ...p, hurting: false } }));
           if (p.where !== "both") setType(p.where === "leg" ? "leg" : "run");
           setView("settings");
           say("Routine updated");
