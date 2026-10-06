@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Back, IconPlay } from "./Icons.jsx";
 import { demoUrl, doseText } from "../data/exercises.js";
 
@@ -46,10 +46,39 @@ export function Sheet({ onClose, children, label }) {
     window.addEventListener("keydown", k);
     return () => window.removeEventListener("keydown", k);
   }, [onClose]);
+  // Pull down to close: drag from the handle, or anywhere once the sheet is scrolled to the top.
+  const ref = useRef(null);
+  const drag = useRef(null);
+  const start = (e) => {
+    const el = ref.current;
+    if (!el || el.scrollTop > 0) return;
+    drag.current = { y: e.touches[0].clientY, dy: 0 };
+    el.style.transition = "none";
+  };
+  const move = (e) => {
+    const d = drag.current;
+    if (!d) return;
+    d.dy = Math.max(0, e.touches[0].clientY - d.y);
+    ref.current.style.transform = `translateY(${d.dy}px)`;
+  };
+  const end = () => {
+    const d = drag.current;
+    drag.current = null;
+    const el = ref.current;
+    if (!d || !el) return;
+    el.style.transition = "transform .2s ease-out";
+    if (d.dy > 90) {
+      el.style.transform = "translateY(100%)";
+      setTimeout(onClose, 180);
+    } else {
+      el.style.transform = "";
+    }
+  };
   return (
     <div className="scrim" onClick={onClose}>
-      <div className="sheet" role="dialog" aria-modal="true" aria-label={label} onClick={(e) => e.stopPropagation()}>
-        <div className="grab" />
+      <div className="sheet" ref={ref} role="dialog" aria-modal="true" aria-label={label} onClick={(e) => e.stopPropagation()}
+        onTouchStart={start} onTouchMove={move} onTouchEnd={end} onTouchCancel={end}>
+        <button type="button" className="grab" aria-label="Close" onClick={onClose} />
         {children}
       </div>
     </div>
@@ -66,8 +95,7 @@ export function ExerciseSheet({ ex, onClose, footer }) {
         <span>{ex.legs === "Two" ? "Two feet" : ex.legs === "One" ? "One leg" : "Alternating"}</span>
         {ex.equip && <span>{ex.equip}</span>}
       </div>
-      <div className="photo" aria-hidden="true"><span>Start</span><span>Finish</span></div>
-      <div className="card pad">
+      <div className="card pad" style={{ marginTop: 14 }}>
         <div className="t1">How to do it</div>
         <p className="t2" style={{ fontSize: 15, marginTop: 4 }}>{ex.cue}</p>
         <div className="t1" style={{ marginTop: 12 }}>Dose</div>

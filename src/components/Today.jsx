@@ -91,8 +91,13 @@ export default function Today({ state, onLog, type, setType }) {
             </div>
           </main>
           <div className="dock">
+            {!canSave && (
+              <p className="small center" style={{ margin: "0 0 8px" }}>
+                {doneCount === 0 ? "Tap the circle next to each exercise when you finish it." : "Answer the quick check-in to save."}
+              </p>
+            )}
             <button type="button" className="btn" disabled={!canSave} onClick={save}>
-              {doneCount === 0 ? "Tick what you did" : !landings || !pain ? "Answer the check-in" : `Save session (${doneCount} of ${plan.length})`}
+              {canSave ? `Save session (${doneCount} of ${plan.length})` : "Save session"}
             </button>
           </div>
         </>
@@ -103,10 +108,13 @@ export default function Today({ state, onLog, type, setType }) {
           open.options.length > 1 && (
             <>
               <div className="sect">Swap for today</div>
+              <p className="small" style={{ margin: "-4px 4px 8px" }}>
+                {open.swapped ? `Swapped. ${open.pick.name} is in today's list.` : "Tap another option to use it today instead. They all do the same job."}
+              </p>
               <div className="swaps">
                 {open.options.map((o) => (
                   <button key={o.id} type="button" className={o.id === open.pick.id ? "on" : ""}
-                    onClick={() => { setOverrides((x) => ({ ...x, [open.job]: o.id })); setOpen(null); }}>{o.name}</button>
+                    onClick={() => { setOverrides((x) => ({ ...x, [open.job]: o.id })); setOpen({ ...open, pick: o, swapped: o.id !== open.pick.id || open.swapped }); }}>{o.name}</button>
                 ))}
               </div>
             </>

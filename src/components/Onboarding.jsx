@@ -13,7 +13,7 @@ export function SetupForm({ initial, onDone, onCancel, editing = false }) {
     <>
       <Header
         title={editing ? "Your answers" : "Build your routine"}
-        subtitle={editing ? "Changes update your routine right away." : "Five quick questions. Change them anytime."}
+        subtitle={editing ? "Changes update your routine right away." : "Four quick questions. Change them anytime."}
         left={editing ? <BackButton onClick={onCancel} /> : null}
         right={editing ? null : <span className="chip">Step 1 of 2</span>}
       >
@@ -46,33 +46,10 @@ export function SetupForm({ initial, onDone, onCancel, editing = false }) {
             ))}
           </div>
         </div>
-        <div className="card pad">
-          <p className="q">Anything hurting right now?</p>
-          <p className="qh">Like a bone stress injury, or pain that changes how you run</p>
-          <Seg light value={p.hurting} onChange={(v) => set("hurting", v)} label="Pain"
-            options={[[false, "No"], [true, "Yes"]]} />
-        </div>
       </main>
       <div className="dock notabs">
         <button type="button" className="btn" onClick={() => onDone(p)}>{editing ? "Save changes" : "Continue"}</button>
       </div>
-    </>
-  );
-}
-
-export function HurtingScreen({ onEdit }) {
-  return (
-    <>
-      <Header title="Let's wait on this" subtitle="Your safety comes first." />
-      <main className="content">
-        <div className="card pad">
-          <p className="t1">Plyometrics aren't a good idea right now</p>
-          <p className="t2" style={{ fontSize: 15, marginTop: 6 }}>
-            Jumping puts a lot of force through your legs. With a bone stress injury, or pain that changes how you walk or run, it can make things worse. Get it checked first, then come back and build your routine.
-          </p>
-        </div>
-        <button type="button" className="btn sec mt" onClick={onEdit}>I'm feeling better, change my answer</button>
-      </main>
     </>
   );
 }
